@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Memuat...</title>
+  <script>try{var t=localStorage.getItem('m3wt-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <!-- Identitas terpusat: config.js (nilai per klien) lalu brand.js (mesin identitas) -->
+  <script src="config.js"></script>
+  <script src="brand.js"></script>
+</head>
+<body>
+  <div id="topProgress" class="top-progress"></div>
+
+  <!-- Loading awal -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-3">Memuat <span data-brand="appName">aplikasi</span>...</p>
+  </div>
+
+  <!-- Halaman Login -->
+  <div id="loginView" class="login-view" style="display:none;">
+    <div class="login-card">
+      <img id="loginLogo" data-brand-logo alt="Logo" class="login-logo">
+      <h4 id="loginTitle" class="mb-1" data-brand="appName">Aplikasi</h4>
+      <p class="text-secondary small mb-4" data-brand="tagline"></p>
+      <div id="loginError" class="alert alert-danger py-2 small" style="display:none;"></div>
+      <div class="mb-3 text-start">
+        <label class="form-label" for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" class="form-control" autocomplete="username" placeholder="nama@email.com">
+      </div>
+      <div class="mb-3 text-start">
+        <label class="form-label" for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="form-control" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button id="loginBtn" type="button" class="btn btn-accent w-100 py-2">Masuk</button>
+      <p class="text-secondary small mt-3 mb-0">Belum punya akun? Hubungi admin.</p>
+      <p class="text-secondary mt-2 mb-0" style="font-size:.7rem;display:none" data-brand-powered>Didukung oleh <b data-brand="poweredBy"></b></p>
+    </div>
+  </div>
+
+  <!-- Sidebar (desktop) -->
+  <nav id="sidebar" class="sidebar" style="display:none;">
+    <div class="sidebar-header">
+      <img id="appLogo" data-brand-logo alt="Logo" class="app-logo">
+      <div>
+        <h5 id="appTitle" data-brand="appName">Aplikasi</h5>
+        <small data-brand="tagline"></small>
+      </div>
+    </div>
+    <div class="user-badge">
+      <i class="bi bi-person-circle" style="font-size:1.6rem;color:#fff;"></i>
+      <div>
+        <div style="color:#fff;font-size:.8rem;font-weight:700;word-break:break-all;" id="userEmailLabel">-</div>
+        <span class="role-pill" id="userRoleLabel">-</span>
+      </div>
+    </div>
+    <ul id="sidebarNav" class="sidebar-nav"></ul>
+    <div class="sidebar-footer">
+      <a href="javascript:void(0)" class="nav-link nav-theme" onclick="toggleDarkMode()"><i class="bi bi-moon-stars"></i> <span>Mode Gelap</span></a>
+      <a href="javascript:void(0)" class="nav-link nav-logout" onclick="logout()"><i class="bi bi-box-arrow-right"></i> <span>Keluar</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Konten Utama -->
+  <main id="mainContent" class="main-content" style="display:none;">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <img data-brand-logo alt="" class="topbar-logo d-lg-none">
+        <h6 class="page-title" id="pageTitle">Dashboard</h6>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="navigateTo('dashboard')" title="Dashboard"><i class="bi bi-speedometer2"></i></button>
+        <button class="icon-btn d-none d-md-flex" onclick="toggleDarkMode()" title="Mode Gelap"><i class="bi bi-moon-stars"></i></button>
+      </div>
+    </div>
+    <div id="app-container"></div>
+  </main>
+
+  <!-- Bottom Navigation (smartphone): Dashboard | Stok | Kasir | Masuk | Lainnya -->
+  <nav id="bottomNav" class="bottom-nav" style="display:none;" aria-label="Navigasi utama"></nav>
+
+  <!-- Sheet "Lainnya" (smartphone) -->
+  <div class="offcanvas offcanvas-bottom more-sheet" tabindex="-1" id="moreSheet" aria-labelledby="moreSheetTitle">
+    <div class="offcanvas-header pb-1">
+      <h6 class="offcanvas-title" id="moreSheetTitle">Menu Lainnya</h6>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Tutup"></button>
+    </div>
+    <div class="offcanvas-body" id="moreSheetBody"></div>
+  </div>
+
+  <!-- Modal Konfirmasi Hapus -->
+  <div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Konfirmasi Hapus</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><p class="mb-0" id="deleteModalText">Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.</p></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Hapus</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Modal Detail -->
+  <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="detailModalTitle">Detail</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" id="detailModalBody"></div>
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button></div>
+    </div></div>
+  </div>
+
+  <!-- Modal Form (dipakai ulang) -->
+  <div class="modal fade" id="formModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="formModalTitle">Form</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" id="formModalBody"></div>
+    </div></div>
+  </div>
+
+  <!-- Modal Pratinjau PDF -->
+  <div class="modal fade" id="pdfModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="pdfModalTitle">Pratinjau Invoice</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body p-0">
+        <iframe id="pdfFrame" class="pdf-frame" title="Pratinjau PDF"></iframe>
+        <p class="small text-secondary text-center my-2">Jika pratinjau tidak tampil di perangkat ini, klik <b>Unduh PDF</b>.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        <a id="pdfDownloadBtn" class="btn btn-accent" download="invoice.pdf"><i class="bi bi-download"></i> Unduh PDF</a>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3 app-toasts" style="z-index:99999;">
+    <div id="appToast" class="toast" role="alert">
+      <div class="toast-header"><strong class="me-auto" id="toastTitle">Notifikasi</strong><button type="button" class="btn-close" data-bs-dismiss="toast"></button></div>
+      <div class="toast-body" id="toastBody"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
