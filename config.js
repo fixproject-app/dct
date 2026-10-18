@@ -22,6 +22,6 @@ window.APP_CONFIG = {
     primaryColor: '#7CF40B',
     secondaryColor: '#F4600B',
     sidebarColor: '#1B0352',
-    poweredBy: 'Copyright ©2026 DODOY|FIX PROJECT'            // mis. 'Fix Projects' untuk menampilkan "Didukung oleh ..." di halaman login
+    poweredBy: '© 2026 DODOY | FIX PROJECT'            // mis. 'Fix Projects' untuk menampilkan "App By." di halaman login
   }
 };
